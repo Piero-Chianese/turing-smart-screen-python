@@ -10,7 +10,7 @@ config:
   # Theme to use (located in res/themes)
   # Use the name of the folder as value
   # Choose a theme made for your screen size (see DISPLAY_SIZE inside theme.yaml)
-  THEME: 3.5inchTheme2
+  THEME: LandscapeMagicBlue
 
   # Hardware sensors reading
   # Choose the appropriate method for reading your hardware sensors:
@@ -71,10 +71,29 @@ display:
   # Display reverse: true/false
   # Set to true to reverse display orientation (landscape <-> reverse landscape, portrait <-> reverse portrait)
   # Note: Display basic orientation (portrait or landscape) is defined by the theme you have selected
-  DISPLAY_REVERSE: false
+  DISPLAY_REVERSE: true
 
   # Reset display on startup: true/false
   # By default, this program resets the display on startup, in case it is in a degraded state from previous runs.
   # This behavior causes the display to disconnect/reconnect, and the COM port to change.
   # On some displays (like rev. A) it can be an issue, in this case change the value to "false".
   RESET_ON_STARTUP: true
+
+
+media_screen:
+  # Enable the customizable media / Spotify screen
+  ENABLED: true
+
+  # Global hotkey to toggle between System Monitor and Media Screen
+  # Supported examples: "ctrl+shift+s", "ctrl+alt+m", "f10", "f12"
+  HOTKEY: "ctrl+shift+s"
+
+  # Theme to use for the media screen (folder in res/themes)
+  THEME: LandscapeMediaSpotify
+
+  # Refresh interval in seconds when the media screen is active
+  INTERVAL: 1
+
+  # Auto return timeout in seconds (0 = disabled, manual toggle only)
+  # If set to e.g. 15, the display will automatically return to System Monitor after 15 seconds
+  AUTO_RETURN_TIMEOUT: 0

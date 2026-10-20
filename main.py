@@ -49,8 +49,10 @@ try:
         import win32gui
 
     from library.log import logger
+    import library.config as config
     import library.scheduler as scheduler
     from library.display import display
+    from library.page_manager import page_manager, parse_hotkey_string
 
 except Exception as e:
     print("""Import error: %s
@@ -172,19 +174,28 @@ if __name__ == "__main__":
 
     # Create a tray icon for the program, with an Exit entry in menu
     try:
+        menu_items = []
+        if config.CONFIG_DATA.get("media_screen", {}).get("ENABLED", False):
+            menu_items.append(
+                pystray.MenuItem(
+                    text='Schermata Musica (Toggle)',
+                    action=lambda icon, item: page_manager.toggle_page())
+            )
+        menu_items.extend([
+            pystray.MenuItem(
+                text='Configure',
+                action=on_configure_tray),
+            pystray.Menu.SEPARATOR,
+            pystray.MenuItem(
+                text='Exit',
+                action=on_exit_tray)
+        ])
+
         tray_icon = pystray.Icon(
             name='Turing System Monitor',
             title='Turing System Monitor',
             icon=Image.open(MAIN_DIRECTORY / "res/icons/monitor-icon-17865/64.png"),
-            menu=pystray.Menu(
-                pystray.MenuItem(
-                    text='Configure',
-                    action=on_configure_tray),
-                pystray.Menu.SEPARATOR,
-                pystray.MenuItem(
-                    text='Exit',
-                    action=on_exit_tray)
-            )
+            menu=pystray.Menu(*menu_items)
         )
 
         # For platforms != macOS, display the tray icon now with non-blocking function
@@ -253,6 +264,8 @@ if __name__ == "__main__":
         scheduler.CustomStats(); time.sleep(DELAY_BETWEEN_THREADS)
         scheduler.WeatherStats(); time.sleep(DELAY_BETWEEN_THREADS)
         scheduler.PingStats(); time.sleep(DELAY_BETWEEN_THREADS)
+        if config.CONFIG_DATA.get("media_screen", {}).get("ENABLED", False):
+            scheduler.MediaStats(); time.sleep(DELAY_BETWEEN_THREADS)
     else:
         logger.info("Theme screenshots mode enabled - program will run %d iterations then close." % args.theme_screenshots)
         # Run a predefined number of time to generate theme screenshot then close
@@ -293,17 +306,30 @@ if __name__ == "__main__":
         wndclass = win32gui.WNDCLASS()
         wndclass.hInstance = hinst
         wndclass.lpszClassName = "turingEventWndClass"
+        HOTKEY_ID_MEDIA = 1001
+
+        def on_win32_hotkey(hWnd, msg, wParam, lParam):
+            if wParam == HOTKEY_ID_MEDIA:
+                logger.info("Hotkey triggered: toggling media screen")
+                page_manager.toggle_page()
+            return 0
+
         messageMap = {win32con.WM_QUERYENDSESSION: on_win32_wm_event,
                       win32con.WM_ENDSESSION: on_win32_wm_event,
                       win32con.WM_QUIT: on_win32_wm_event,
                       win32con.WM_DESTROY: on_win32_wm_event,
                       win32con.WM_CLOSE: on_win32_wm_event,
-                      win32con.WM_POWERBROADCAST: on_win32_wm_event}
+                      win32con.WM_POWERBROADCAST: on_win32_wm_event,
+                      win32con.WM_HOTKEY: on_win32_hotkey}
 
         wndclass.lpfnWndProc = messageMap
 
         try:
-            myWindowClass = win32gui.RegisterClass(wndclass)
+            try:
+                myWindowClass = win32gui.RegisterClass(wndclass)
+            except:
+                myWindowClass = "turingEventWndClass"
+
             hwnd = win32gui.CreateWindowEx(win32con.WS_EX_LEFT,
                                            myWindowClass,
                                            "turingEventWnd",
@@ -316,6 +342,16 @@ if __name__ == "__main__":
                                            0,
                                            hinst,
                                            None)
+
+            if config.CONFIG_DATA.get("media_screen", {}).get("ENABLED", False):
+                hotkey_str = config.CONFIG_DATA.get("media_screen", {}).get("HOTKEY", "ctrl+shift+s")
+                mods, vk = parse_hotkey_string(hotkey_str)
+                if vk != 0:
+                    try:
+                        win32gui.RegisterHotKey(hwnd, HOTKEY_ID_MEDIA, mods, vk)
+                        logger.info(f"Registered global hotkey '{hotkey_str}' for media screen")
+                    except Exception as he:
+                        logger.warning(f"Error registering hotkey '{hotkey_str}': {he}")
             while True:
                 # Receive and dispatch window messages
                 win32gui.PumpWaitingMessages()

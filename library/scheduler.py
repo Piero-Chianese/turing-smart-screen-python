@@ -184,6 +184,17 @@ def PingStats():
     # logger.debug("Refresh Ping data")
     stats.Ping.stats()
 
+MEDIA_INTERVAL = config.CONFIG_DATA.get('media_screen', {}).get("INTERVAL", 1) if config.CONFIG_DATA.get('media_screen', {}).get("ENABLED", False) else 0
+
+
+@async_job("Media_Stats")
+@schedule(timedelta(seconds=MEDIA_INTERVAL).total_seconds())
+def MediaStats():
+    from library.page_manager import page_manager, PAGE_MEDIA
+    if page_manager.is_page_active(PAGE_MEDIA):
+        from library.media.media_screen import media_screen
+        media_screen.render()
+
 
 @async_job("Queue_Handler")
 @schedule(timedelta(milliseconds=1).total_seconds())

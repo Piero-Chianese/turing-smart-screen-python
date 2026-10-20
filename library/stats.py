@@ -40,6 +40,7 @@ from uptime import uptime
 import library.config as config
 from library.display import display
 from library.log import logger
+from library.page_manager import page_manager
 
 DEFAULT_HISTORY_SIZE = 10
 
@@ -92,6 +93,8 @@ def get_theme_file_path(name):
 
 
 def display_themed_value(theme_data, value, min_size=0, unit=''):
+    if not page_manager.is_page_active("SYSTEM"):
+        return
     if not theme_data.get("SHOW", False):
         return
 
@@ -140,6 +143,8 @@ def display_themed_temperature_value(theme_data, value):
 
 
 def display_themed_progress_bar(theme_data, value):
+    if not page_manager.is_page_active("SYSTEM"):
+        return
     if not theme_data.get("SHOW", False):
         return
 
@@ -160,6 +165,8 @@ def display_themed_progress_bar(theme_data, value):
 
 
 def display_themed_radial_bar(theme_data, value, min_size=0, unit='', custom_text=None):
+    if not page_manager.is_page_active("SYSTEM"):
+        return
     if not theme_data.get("SHOW", False):
         return
 
@@ -220,6 +227,8 @@ def display_themed_temperature_radial_bar(theme_data, value):
 
 
 def display_themed_line_graph(theme_data, values):
+    if not page_manager.is_page_active("SYSTEM"):
+        return
     if not theme_data.get("SHOW", False):
         return
 

@@ -38,21 +38,25 @@ def _get_full_path(path, name):
         return None
 
 
-def _get_theme_orientation() -> Orientation:
-    if config.THEME_DATA["display"]["DISPLAY_ORIENTATION"] == 'portrait':
+def get_theme_orientation(theme_data=None) -> Orientation:
+    if theme_data is None:
+        theme_data = config.THEME_DATA
+    orient_str = theme_data.get("display", {}).get("DISPLAY_ORIENTATION", "portrait")
+    if orient_str == 'portrait':
         if config.CONFIG_DATA["display"].get("DISPLAY_REVERSE", False):
             return Orientation.REVERSE_PORTRAIT
         else:
             return Orientation.PORTRAIT
-    elif config.THEME_DATA["display"]["DISPLAY_ORIENTATION"] == 'landscape':
+    elif orient_str == 'landscape':
         if config.CONFIG_DATA["display"].get("DISPLAY_REVERSE", False):
             return Orientation.REVERSE_LANDSCAPE
         else:
             return Orientation.LANDSCAPE
     else:
-        logger.warning("Orientation '", config.THEME_DATA["display"]["DISPLAY_ORIENTATION"],
-                       "' unknown, using portrait")
+        logger.warning(f"Orientation '{orient_str}' unknown, using portrait")
         return Orientation.PORTRAIT
+
+_get_theme_orientation = get_theme_orientation
 
 
 def _get_theme_size() -> tuple[int, int]:

@@ -1,0 +1,120 @@
+---
+author: "Custom"
+
+display:
+  DISPLAY_SIZE: '3.5"'
+  DISPLAY_ORIENTATION: landscape
+  DISPLAY_RGB_LED: 30, 215, 96
+
+static_images:
+  BACKGROUND:
+    PATH: background.png
+    X: 0
+    Y: 0
+    WIDTH: 480
+    HEIGHT: 320
+  SPOTIFY_LOGO:
+    PATH: spotify_icon.png
+    X: 22
+    Y: 10
+    WIDTH: 32
+    HEIGHT: 32
+
+static_text:
+  HEADER_LABEL:
+    TEXT: "NOW PLAYING"
+    X: 65
+    Y: 18
+    FONT: roboto/Roboto-Bold.ttf
+    FONT_SIZE: 16
+    FONT_COLOR: 30, 215, 96
+    BACKGROUND_IMAGE: background.png
+
+media_layout:
+  COVER_ART:
+    SHOW: true
+    X: 25
+    Y: 65
+    WIDTH: 180
+    HEIGHT: 180
+    DEFAULT_IMAGE: default_cover.png
+
+  TITLE:
+    SHOW: true
+    X: 225
+    Y: 70
+    WIDTH: 245
+    HEIGHT: 35
+    FONT: roboto/Roboto-Bold.ttf
+    FONT_SIZE: 20
+    FONT_COLOR: 255, 255, 255
+    BACKGROUND_IMAGE: background.png
+    MAX_LENGTH: 30
+
+  ARTIST:
+    SHOW: true
+    X: 225
+    Y: 115
+    WIDTH: 245
+    HEIGHT: 30
+    FONT: roboto/Roboto-Medium.ttf
+    FONT_SIZE: 17
+    FONT_COLOR: 30, 215, 96
+    BACKGROUND_IMAGE: background.png
+    MAX_LENGTH: 32
+
+  ALBUM:
+    SHOW: true
+    X: 225
+    Y: 155
+    WIDTH: 245
+    HEIGHT: 25
+    FONT: roboto/Roboto-Regular.ttf
+    FONT_SIZE: 14
+    FONT_COLOR: 180, 180, 180
+    BACKGROUND_IMAGE: background.png
+    MAX_LENGTH: 35
+
+  STATUS:
+    SHOW: true
+    X: 225
+    Y: 195
+    WIDTH: 245
+    HEIGHT: 25
+    FONT: roboto/Roboto-Regular.ttf
+    FONT_SIZE: 14
+    FONT_COLOR: 150, 150, 150
+    BACKGROUND_IMAGE: background.png
+
+  PROGRESS_BAR:
+    SHOW: true
+    X: 25
+    Y: 265
+    WIDTH: 430
+    HEIGHT: 8
+    BAR_COLOR: 30, 215, 96
+    BACKGROUND_COLOR: 45, 45, 45
+
+  TIME_POSITION:
+    SHOW: true
+    X: 25
+    Y: 280
+    WIDTH: 0
+    HEIGHT: 0
+    FONT: roboto-mono/RobotoMono-Regular.ttf
+    FONT_SIZE: 13
+    FONT_COLOR: 180, 180, 180
+    BACKGROUND_IMAGE: background.png
+
+  TIME_DURATION:
+    SHOW: true
+    X: 455
+    Y: 280
+    WIDTH: 0
+    HEIGHT: 0
+    ALIGN: right
+    ANCHOR: ra
+    FONT: roboto-mono/RobotoMono-Regular.ttf
+    FONT_SIZE: 13
+    FONT_COLOR: 180, 180, 180
+    BACKGROUND_IMAGE: background.png
