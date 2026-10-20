@@ -174,14 +174,25 @@ if __name__ == "__main__":
 
     # Create a tray icon for the program, with an Exit entry in menu
     try:
-        menu_items = []
+        menu_items = [
+            pystray.MenuItem(
+                text='Cambia Schermata (Ciclo)',
+                action=lambda icon, item: page_manager.toggle_page())
+        ]
         if config.CONFIG_DATA.get("media_screen", {}).get("ENABLED", False):
             menu_items.append(
                 pystray.MenuItem(
-                    text='Schermata Musica (Toggle)',
-                    action=lambda icon, item: page_manager.toggle_page())
+                    text='Schermata Spotify / Musica',
+                    action=lambda icon, item: page_manager.toggle_media_page())
+            )
+        if config.CONFIG_DATA.get("clock_screen", {}).get("ENABLED", False):
+            menu_items.append(
+                pystray.MenuItem(
+                    text='Schermata Orologio Charizard',
+                    action=lambda icon, item: page_manager.toggle_clock_page())
             )
         menu_items.extend([
+            pystray.Menu.SEPARATOR,
             pystray.MenuItem(
                 text='Configure',
                 action=on_configure_tray),
@@ -266,6 +277,8 @@ if __name__ == "__main__":
         scheduler.PingStats(); time.sleep(DELAY_BETWEEN_THREADS)
         if config.CONFIG_DATA.get("media_screen", {}).get("ENABLED", False):
             scheduler.MediaStats(); time.sleep(DELAY_BETWEEN_THREADS)
+        if config.CONFIG_DATA.get("clock_screen", {}).get("ENABLED", False):
+            scheduler.ClockStats(); time.sleep(DELAY_BETWEEN_THREADS)
     else:
         logger.info("Theme screenshots mode enabled - program will run %d iterations then close." % args.theme_screenshots)
         # Run a predefined number of time to generate theme screenshot then close
@@ -307,11 +320,15 @@ if __name__ == "__main__":
         wndclass.hInstance = hinst
         wndclass.lpszClassName = "turingEventWndClass"
         HOTKEY_ID_MEDIA = 1001
+        HOTKEY_ID_CLOCK = 1002
 
         def on_win32_hotkey(hWnd, msg, wParam, lParam):
             if wParam == HOTKEY_ID_MEDIA:
                 logger.info("Hotkey triggered: toggling media screen")
-                page_manager.toggle_page()
+                page_manager.toggle_media_page()
+            elif wParam == HOTKEY_ID_CLOCK:
+                logger.info("Hotkey triggered: toggling clock screen")
+                page_manager.toggle_clock_page()
             return 0
 
         messageMap = {win32con.WM_QUERYENDSESSION: on_win32_wm_event,
@@ -352,6 +369,16 @@ if __name__ == "__main__":
                         logger.info(f"Registered global hotkey '{hotkey_str}' for media screen")
                     except Exception as he:
                         logger.warning(f"Error registering hotkey '{hotkey_str}': {he}")
+
+            if config.CONFIG_DATA.get("clock_screen", {}).get("ENABLED", False):
+                clock_hotkey = config.CONFIG_DATA.get("clock_screen", {}).get("HOTKEY", "ctrl+shift+c")
+                mods_c, vk_c = parse_hotkey_string(clock_hotkey)
+                if vk_c != 0:
+                    try:
+                        win32gui.RegisterHotKey(hwnd, HOTKEY_ID_CLOCK, mods_c, vk_c)
+                        logger.info(f"Registered global hotkey '{clock_hotkey}' for clock screen")
+                    except Exception as he:
+                        logger.warning(f"Error registering hotkey '{clock_hotkey}': {he}")
             while True:
                 # Receive and dispatch window messages
                 win32gui.PumpWaitingMessages()

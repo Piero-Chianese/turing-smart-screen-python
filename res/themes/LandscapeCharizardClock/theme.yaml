@@ -1,0 +1,41 @@
+---
+author: "Custom"
+
+display:
+  DISPLAY_SIZE: '3.5"'
+  DISPLAY_ORIENTATION: landscape
+  DISPLAY_RGB_LED: 255, 90, 0 # Charizard fiery orange LED
+
+static_images:
+  BACKGROUND:
+    PATH: background.png
+    X: 0
+    Y: 0
+    WIDTH: 480
+    HEIGHT: 320
+
+clock_layout:
+  # Digital Time
+  TIME:
+    SHOW: true
+    X: 350
+    Y: 25
+    FONT: digital/DIGITAL-7.TTF
+    FONT_SIZE: 62
+    FONT_COLOR: 255, 245, 220 # Bright warm white glow
+    BACKGROUND_IMAGE: background.png
+    ALIGN: center
+    ANCHOR: ma
+    SHOW_SECONDS: true
+
+  # Date display
+  DATE:
+    SHOW: true
+    X: 350
+    Y: 96
+    FONT: roboto/Roboto-Bold.ttf
+    FONT_SIZE: 15
+    FONT_COLOR: 255, 235, 190 # Clear warm amber-white
+    BACKGROUND_IMAGE: background.png
+    ALIGN: center
+    ANCHOR: ma

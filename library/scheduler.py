@@ -196,6 +196,18 @@ def MediaStats():
         media_screen.render()
 
 
+CLOCK_INTERVAL = config.CONFIG_DATA.get('clock_screen', {}).get("INTERVAL", 1) if config.CONFIG_DATA.get('clock_screen', {}).get("ENABLED", False) else 0
+
+
+@async_job("Clock_Stats")
+@schedule(timedelta(seconds=CLOCK_INTERVAL).total_seconds())
+def ClockStats():
+    from library.page_manager import page_manager, PAGE_CLOCK
+    if page_manager.is_page_active(PAGE_CLOCK):
+        from library.clock.clock_screen import clock_screen
+        clock_screen.render()
+
+
 @async_job("Queue_Handler")
 @schedule(timedelta(milliseconds=1).total_seconds())
 def QueueHandler():

@@ -42,6 +42,7 @@ CONFIG_DATA = load_yaml(MAIN_DIRECTORY / "config.yaml")
 THEME_DEFAULT = load_yaml(MAIN_DIRECTORY / "res/themes/default.yaml")
 THEME_DATA = None
 MEDIA_THEME_DATA = None
+CLOCK_THEME_DATA = None
 
 
 def copy_default(default, theme):
@@ -87,6 +88,23 @@ def load_media_theme():
         MEDIA_THEME_DATA = None
 
 
+def load_clock_theme():
+    global CLOCK_THEME_DATA
+    clock_cfg = CONFIG_DATA.get('clock_screen', {})
+    if not clock_cfg.get('ENABLED', False):
+        return
+
+    theme_name = clock_cfg.get('THEME', 'LandscapeCharizardClock')
+    try:
+        theme_path = Path("res/themes/" + theme_name)
+        logger.info("Loading clock theme %s from %s" % (theme_name, theme_path / "theme.yaml"))
+        CLOCK_THEME_DATA = load_yaml(MAIN_DIRECTORY / theme_path / "theme.yaml")
+        CLOCK_THEME_DATA['PATH'] = str(MAIN_DIRECTORY / theme_path) + "/"
+    except Exception as e:
+        logger.warning("Clock theme '%s' not found or contains errors: %s" % (theme_name, str(e)))
+        CLOCK_THEME_DATA = None
+
+
 def check_theme_compatible(display_size: str):
     # Check if theme is compatible with hardware revision
     if display_size != THEME_DATA['display'].get("DISPLAY_SIZE", '3.5"'):
@@ -98,9 +116,10 @@ def check_theme_compatible(display_size: str):
             os._exit(0)
 
 
-# Load theme on import
+# Load themes on import
 load_theme()
 load_media_theme()
+load_clock_theme()
 
 # Queue containing the serial requests to send to the screen
 update_queue = queue.Queue()

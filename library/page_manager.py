@@ -5,7 +5,6 @@
 
 import platform
 import threading
-import time
 from typing import Optional, Tuple
 
 from library import config
@@ -20,6 +19,7 @@ else:
 
 PAGE_SYSTEM = "SYSTEM"
 PAGE_MEDIA = "MEDIA"
+PAGE_CLOCK = "CLOCK"
 
 
 def parse_hotkey_string(hotkey_str: str) -> Tuple[int, int]:
@@ -60,7 +60,7 @@ def parse_hotkey_string(hotkey_str: str) -> Tuple[int, int]:
 
 class PageManager:
     """
-    Manages active screen pages (e.g. System Monitor vs Spotify/Media screen)
+    Manages active screen pages (System Monitor, Spotify/Media screen, Clock screen)
     and serializes transitions between them.
     """
 
@@ -78,10 +78,33 @@ class PageManager:
         with self._lock:
             return self._current_page == page_name
 
+    def get_enabled_pages(self):
+        pages = [PAGE_SYSTEM]
+        if config.CONFIG_DATA.get("media_screen", {}).get("ENABLED", False):
+            pages.append(PAGE_MEDIA)
+        if config.CONFIG_DATA.get("clock_screen", {}).get("ENABLED", False):
+            pages.append(PAGE_CLOCK)
+        return pages
+
     def toggle_page(self):
-        """Toggle between System Monitor and Media Screen."""
+        """Cycle through enabled pages."""
+        pages = self.get_enabled_pages()
         with self._lock:
-            target = PAGE_MEDIA if self._current_page == PAGE_SYSTEM else PAGE_SYSTEM
+            if self._current_page in pages:
+                idx = pages.index(self._current_page)
+                target = pages[(idx + 1) % len(pages)]
+            else:
+                target = pages[0]
+        self.switch_to_page(target)
+
+    def toggle_media_page(self):
+        with self._lock:
+            target = PAGE_SYSTEM if self._current_page == PAGE_MEDIA else PAGE_MEDIA
+        self.switch_to_page(target)
+
+    def toggle_clock_page(self):
+        with self._lock:
+            target = PAGE_SYSTEM if self._current_page == PAGE_CLOCK else PAGE_CLOCK
         self.switch_to_page(target)
 
     def switch_to_page(self, page_name: str):
@@ -98,6 +121,8 @@ class PageManager:
 
         if page_name == PAGE_MEDIA:
             self._activate_media_page()
+        elif page_name == PAGE_CLOCK:
+            self._activate_clock_page()
         else:
             self._activate_system_page()
 
@@ -107,6 +132,7 @@ class PageManager:
             from library.display import get_theme_orientation
             media_orient = get_theme_orientation(config.MEDIA_THEME_DATA)
             display.lcd.SetOrientation(media_orient)
+
         # 1. Draw media screen background & static images/texts
         media_screen.display_static_elements()
         # 2. Render initial dynamic media content
@@ -125,10 +151,21 @@ class PageManager:
                 self._auto_return_timer.daemon = True
                 self._auto_return_timer.start()
 
+    def _activate_clock_page(self):
+        from library.clock.clock_screen import clock_screen
+        if config.CLOCK_THEME_DATA:
+            from library.display import get_theme_orientation
+            clock_orient = get_theme_orientation(config.CLOCK_THEME_DATA)
+            display.lcd.SetOrientation(clock_orient)
+
+        clock_screen.display_static_elements()
+        clock_screen.render(force_redraw=True)
+
     def _activate_system_page(self):
         from library.display import get_theme_orientation
         sys_orient = get_theme_orientation(config.THEME_DATA)
         display.lcd.SetOrientation(sys_orient)
+
         # 1. Redraw system monitor static background and text
         display.display_static_images()
         display.display_static_text()
