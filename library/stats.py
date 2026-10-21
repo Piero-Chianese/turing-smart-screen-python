@@ -72,7 +72,12 @@ elif HW_SENSORS == "STATIC":
     import library.sensors.sensors_stub_static as sensors
 elif HW_SENSORS == "AUTO":
     if platform.system() == 'Windows':
-        import library.sensors.sensors_librehardwaremonitor as sensors
+        import ctypes
+        if ctypes.windll.shell32.IsUserAnAdmin() != 0:
+            import library.sensors.sensors_librehardwaremonitor as sensors
+        else:
+            logger.warning("Program is not running as administrator: falling back to standard Python sensors (HW_SENSORS='PYTHON'). For advanced motherboard/fan sensors, run as administrator.")
+            import library.sensors.sensors_python as sensors
     else:
         import library.sensors.sensors_python as sensors
 else:

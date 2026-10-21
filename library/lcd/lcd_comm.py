@@ -72,7 +72,7 @@ class LcdComm(ABC):
 
         # Mutex to protect the queue in case a thread want to add multiple requests (e.g. image data) that should not be
         # mixed with other requests in-between
-        self.update_queue_mutex = threading.Lock()
+        self.update_queue_mutex = threading.RLock()
 
         # Create a cache to store opened images, to avoid opening and loading from the filesystem every time
         self.image_cache = {}  # { key=path, value=PIL.Image }

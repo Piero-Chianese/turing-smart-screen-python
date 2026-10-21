@@ -5,6 +5,7 @@
 
 import platform
 import threading
+import time
 from typing import Optional, Tuple
 
 from library import config
@@ -119,6 +120,17 @@ class PageManager:
             self._current_page = page_name
             logger.info(f"Switched active screen to '{page_name}'")
 
+            # 1. Wait briefly for in-flight image chunks of the previous page to complete
+            # so the serial link and LCD controller are in a clean, idle state
+            if hasattr(display.lcd, 'update_queue') and display.lcd.update_queue:
+                t_end = time.time() + 0.35
+                while not display.lcd.update_queue.empty() and time.time() < t_end:
+                    time.sleep(0.01)
+
+            # 2. Reset text bounding box cache on display driver to avoid cross-theme ghosting
+            if hasattr(display.lcd, 'text_bbox_cache'):
+                display.lcd.text_bbox_cache.clear()
+
         if page_name == PAGE_MEDIA:
             self._activate_media_page()
         elif page_name == PAGE_CLOCK:
@@ -128,6 +140,8 @@ class PageManager:
 
     def _activate_media_page(self):
         from library.media.media_screen import media_screen
+        if hasattr(media_screen, 'reset_cache'):
+            media_screen.reset_cache()
         if config.MEDIA_THEME_DATA:
             from library.display import get_theme_orientation
             media_orient = get_theme_orientation(config.MEDIA_THEME_DATA)
@@ -153,6 +167,7 @@ class PageManager:
 
     def _activate_clock_page(self):
         from library.clock.clock_screen import clock_screen
+        clock_screen.reset_cache()
         if config.CLOCK_THEME_DATA:
             from library.display import get_theme_orientation
             clock_orient = get_theme_orientation(config.CLOCK_THEME_DATA)

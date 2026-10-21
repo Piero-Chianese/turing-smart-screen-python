@@ -154,6 +154,9 @@ class LcdCommRevA(LcdComm):
         self.SendCommand(Command.SET_BRIGHTNESS, level_absolute, 0, 0, 0)
 
     def SetOrientation(self, orientation: Orientation = Orientation.PORTRAIT):
+        if getattr(self, 'orientation', None) == orientation:
+            return  # Avoid redundant orientation command and serial disruption
+
         self.orientation = orientation
         width = self.get_width()
         height = self.get_height()
@@ -173,7 +176,11 @@ class LcdCommRevA(LcdComm):
         byteBuffer[8] = (width & 255)
         byteBuffer[9] = (height >> 8)
         byteBuffer[10] = (height & 255)
-        self.serial_write(bytes(byteBuffer))
+        if self.update_queue:
+            with self.update_queue_mutex:
+                self.update_queue.put((self.WriteData, [byteBuffer]))
+        else:
+            self.serial_write(bytes(byteBuffer))
 
     def DisplayPILImage(
             self,
@@ -210,10 +217,9 @@ class LcdCommRevA(LcdComm):
 
         rgb565le = image_to_RGB565(image, "little")
 
-        self.SendCommand(Command.DISPLAY_BITMAP, x0, y0, x1, y1)
-
-        # Lock queue mutex then queue all the requests for the image data
+        # Lock queue mutex so SendCommand and all image line chunks are queued atomically
         with self.update_queue_mutex:
+            self.SendCommand(Command.DISPLAY_BITMAP, x0, y0, x1, y1)
             # Send image data by multiple of "display width" bytes
             for chunk in chunked(rgb565le, width * 8):
                 self.SendLine(chunk)
