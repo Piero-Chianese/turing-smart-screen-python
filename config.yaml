@@ -109,5 +109,8 @@ clock_screen:
   # Theme to use for the clock screen (folder in res/themes)
   THEME: LandscapeCharizardClock
 
+  # Refresh interval in seconds (default: 1 second, updates clock seconds & animated flame)
+  INTERVAL: 1
+
   # Refresh interval in seconds (1 second for digital clock)
   INTERVAL: 1

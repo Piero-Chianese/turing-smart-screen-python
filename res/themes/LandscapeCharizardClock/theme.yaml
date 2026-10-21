@@ -6,6 +6,35 @@ display:
   DISPLAY_ORIENTATION: landscape
   DISPLAY_RGB_LED: 255, 90, 0 # Charizard fiery orange LED
 
+# Dynamic Time-of-Day Skies (Alba, Giorno, Pomeriggio, Sera, Notte)
+day_phases:
+  ENABLED: true
+  ALBA:
+    START_HOUR: 6
+    END_HOUR: 9
+    IMAGE: bg_alba.png
+    RGB_LED: 255, 140, 90
+  GIORNO:
+    START_HOUR: 9
+    END_HOUR: 16
+    IMAGE: bg_giorno.png
+    RGB_LED: 255, 210, 110
+  POMERIGGIO:
+    START_HOUR: 16
+    END_HOUR: 19
+    IMAGE: bg_pomeriggio.png
+    RGB_LED: 255, 120, 20
+  SERA:
+    START_HOUR: 19
+    END_HOUR: 22
+    IMAGE: bg_sera.png
+    RGB_LED: 255, 80, 0
+  NOTTE:
+    START_HOUR: 22
+    END_HOUR: 6
+    IMAGE: bg_notte.png
+    RGB_LED: 50, 100, 240
+
 static_images:
   BACKGROUND:
     PATH: background.png
@@ -39,3 +68,13 @@ clock_layout:
     BACKGROUND_IMAGE: background.png
     ALIGN: center
     ANCHOR: ma
+
+  # Animated Tail Flame (Disabled to preserve natural painted flame across day phases)
+  FLAME_ANIMATION:
+    SHOW: false
+    X: 26
+    Y: 145
+    WIDTH: 40
+    HEIGHT: 48
+    FRAMES_DIR: "flame"
+    NUM_FRAMES: 4
