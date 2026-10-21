@@ -69,12 +69,12 @@ clock_layout:
     ALIGN: center
     ANCHOR: ma
 
-  # Animated Tail Flame (Disabled to preserve natural painted flame across day phases)
+  # Animated Tail Flame (Seamless 6-frame flame dynamics, 0 border artifacts)
   FLAME_ANIMATION:
-    SHOW: false
-    X: 26
-    Y: 145
-    WIDTH: 40
-    HEIGHT: 48
+    SHOW: true
+    X: 15
+    Y: 135
+    WIDTH: 60
+    HEIGHT: 70
     FRAMES_DIR: "flame"
-    NUM_FRAMES: 4
+    NUM_FRAMES: 6

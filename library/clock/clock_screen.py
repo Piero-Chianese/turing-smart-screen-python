@@ -279,21 +279,28 @@ class ClockScreen:
                     anchor=date_cfg.get("ANCHOR", "ma"),
                 )
 
-        # 3. Animated Flame on Charizard's Tail (optional)
+        # 3. Animated Flame on Charizard's Tail
         flame_cfg = layout.get("FLAME_ANIMATION", {})
-        if flame_cfg.get("SHOW", False):
+        if flame_cfg.get("SHOW", True):
             frames_dir = flame_cfg.get("FRAMES_DIR", "flame")
-            num_frames = flame_cfg.get("NUM_FRAMES", 4)
+            num_frames = flame_cfg.get("NUM_FRAMES", 6)
             if num_frames > 0:
                 frame_idx = self._frame_counter % num_frames
                 self._frame_counter += 1
-                frame_path = os.path.join(config.CLOCK_THEME_DATA.get("PATH", ""), frames_dir, f"flame_{frame_idx}.png")
+                theme_path = config.CLOCK_THEME_DATA.get("PATH", "")
+
+                # Check for phase-specific frame first (e.g. flame_NOTTE_0.png)
+                frame_name = f"flame_{phase}_{frame_idx}.png"
+                frame_path = os.path.join(theme_path, frames_dir, frame_name)
+                if not os.path.exists(frame_path):
+                    frame_path = os.path.join(theme_path, frames_dir, f"flame_{frame_idx}.png")
+
                 if os.path.exists(frame_path):
                     fx, fy, fw, fh = _clamp_coord(
-                        flame_cfg.get("X", 26),
-                        flame_cfg.get("Y", 145),
-                        flame_cfg.get("WIDTH", 40),
-                        flame_cfg.get("HEIGHT", 48),
+                        flame_cfg.get("X", 15),
+                        flame_cfg.get("Y", 135),
+                        flame_cfg.get("WIDTH", 60),
+                        flame_cfg.get("HEIGHT", 70),
                     )
                     display.lcd.DisplayBitmap(
                         bitmap_path=frame_path,
